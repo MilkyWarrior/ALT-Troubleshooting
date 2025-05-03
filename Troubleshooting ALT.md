@@ -80,3 +80,29 @@ P.S. Ошибка скорее всего возникает в играх, за
 ## #Фикс  Davinchi не запускается
 **Фикс:** https://github.com/H3rz3n/Davinci-Resolve-Fedora-38-39-40-Fix/blob/main/Davinci-POST-INSTALL-Fix-Fedora-39.sh
 
+## #Фикс  OBS не работают горячие клавиши 
+*Частичное решение*: Запустить OBS в Xwayland
+```
+#!/bin/bash
+QT_QPA_PLATFORM=xcb obs
+```
+ Запустить либо в терминале, либо создать скрипт с текстом выше и добавить его как команду в редакторе меню под ярлыком  obs
+ > Данный способ позволяет работать горячим клавишам obs в других приложениях, работающих в xwayland. но не в самом wayland(рабочем столе в том числе)
+
+**Фикс:**
+1. Нужно скачать  [`obs-cmd`](https://github.com/grigio/obs-cmd), сделать исполняемым и перенести в `/usr/local/bin`
+2. В самом obs studio нужно включить websocket(Сервис $\rightarrow$  Настройки сервера websocket )
+3. Далее в настройках gnome перейти во вкладку клавиатура $\rightarrow$ комбинации клавиш $\rightarrow$  дополнительные комбинации клавиш
+4. создать свою комбинацию клавиш с командой ```
+```
+начать запись
+obs-cmd -w obsws://айпи сервера websocket:порт/пароль websocket recording start
+завершить запись
+obs-cmd -w obsws://айпи сервера websocket:порт/пароль websocket recording stop
+остановить запись
+obs-cmd -w obsws://айпи сервера websocket:порт/пароль websocket recording pause
+возообнить запись
+obs-cmd -w obsws://айпи сервера websocket:порт/пароль websocket recording resume
+```
+Другие вариации написаны на домашней странице `obs-cmd`
+
