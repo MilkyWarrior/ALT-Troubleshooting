@@ -106,3 +106,33 @@ obs-cmd -w obsws://айпи сервера websocket:порт/пароль webso
 ```
 Другие вариации написаны на домашней странице `obs-cmd`
 
+## #Фикс Фаерволл блочит соединения gsconnect/kdeconnect
+**Фикс:**
+1. Добавить правила `iptables`: 
+```
+sudo iptables -A INPUT -p udp --dport 1714:1764 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 1714:1764 -j ACCEPT
+```
+2. Сохранить изменения
+```
+sudo iptables-save > /etc/sysconfig/iptables
+```
+3. Далее в `/etc/net/ifaces/default/options`  (файл) нужно изменить следующие параметры: 
+```
+CONFIG_FW=yes
+FW_TYPE=iptables
+```
+А в `etc/net/ifaces/default/fw/options`:
+```
+IPTABLES_HUMAN_SYNTAX=yes
+```
+4. Выполнить команды: 
+```
+efw default filter INPUT rule accept tcp from any to 192.168.1.100 dport 1714:1764  
+efw default filter INPUT rule accept udp from any to 192.168.1.100 dport 1714:1764
+```
+5. Перезапустить брэндмауер 
+```
+sudo efw default restart
+```
+ 6.  Если необходимо, можно дополнительно еще перезагрузить пк
