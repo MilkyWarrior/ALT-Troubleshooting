@@ -82,7 +82,7 @@ P.S. Ошибка скорее всего возникает в играх, за
 
 ## #Фикс  OBS не работают горячие клавиши 
 *Частичное решение*: Запустить OBS в Xwayland
-```
+```ini
 #!/bin/bash
 QT_QPA_PLATFORM=xcb obs
 ```
@@ -94,7 +94,7 @@ QT_QPA_PLATFORM=xcb obs
 2. В самом obs studio нужно включить websocket(Сервис $\rightarrow$  Настройки сервера websocket )
 3. Далее в настройках gnome перейти во вкладку клавиатура $\rightarrow$ комбинации клавиш $\rightarrow$  дополнительные комбинации клавиш
 4. создать свою комбинацию клавиш с командой ```
-```
+```bash
 начать запись
 obs-cmd -w obsws://айпи сервера websocket:порт/пароль websocket recording start
 завершить запись
@@ -109,30 +109,59 @@ obs-cmd -w obsws://айпи сервера websocket:порт/пароль webso
 ## #Фикс Фаерволл блочит соединения gsconnect/kdeconnect
 **Фикс:**
 1. Добавить правила `iptables`: 
-```
+```bash
 sudo iptables -A INPUT -p udp --dport 1714:1764 -j ACCEPT
 sudo iptables -A INPUT -p tcp --dport 1714:1764 -j ACCEPT
 ```
 2. Сохранить изменения
-```
+```bash
 sudo iptables-save > /etc/sysconfig/iptables
 ```
 3. Далее в `/etc/net/ifaces/default/options`  (файл) нужно изменить следующие параметры: 
-```
+```ini
 CONFIG_FW=yes
 FW_TYPE=iptables
 ```
 А в `etc/net/ifaces/default/fw/options`:
-```
+```ini
 IPTABLES_HUMAN_SYNTAX=yes
 ```
 4. Выполнить команды: 
-```
+```bash
 efw default filter INPUT rule accept tcp from any to 192.168.1.100 dport 1714:1764  
 efw default filter INPUT rule accept udp from any to 192.168.1.100 dport 1714:1764
 ```
 5. Перезапустить брэндмауер 
-```
+```bash
 sudo efw default restart
 ```
  6.  Если необходимо, можно дополнительно еще перезагрузить пк
+
+## #Фикс  Установка сертификата, кнопка "импорт" неактивна
+**Фикс:**
+1. Переместить сертификат в директорию `/etc/pki/ca-trust/source/anchors/`
+```zsh
+sudo mv /путь/к/сертификату /etc/pki/ca-trust/source/anchors/
+```
+2. обновить сертификаты `update-ca-certificates` 
+
+## #Фикс  После спящего режима чрезмерно высокое энергопотребление батареи и фризы
+ **Фикс:**
+ 1. Создайте директорию, если её нет: 
+```zsh
+sudo mkdir -p /etc/systemd/system/systemd-suspend.service.d
+```
+2. Создайте или отредактируйте файл `/etc/systemd/system/systemd-suspend.service.d/disable_freeze_user_session.conf`
+```zsh
+sudo nano /etc/systemd/system/systemd-suspend.service.d/disable_freeze_user_session.conf
+```
+3. Добавить следующее:
+```ini
+[Service]
+Environment=FREEZE_USER_SESSIONS=false
+```
+4. Перезапустить сервисы
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart systemd-suspend
+```
